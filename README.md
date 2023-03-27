@@ -17,3 +17,16 @@ assert_eq!(math_expr.eval(), 81);
 ```bash
 cargo run
 ```
+
+## To do
+
+- Add
+- Subtract
+- Parentheses
+- Multiply
+- Divide
+- Decimal numbers
+- Pow
+- Improve error handling types
+- Overflow handling
+- Log
