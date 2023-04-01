@@ -1,6 +1,6 @@
 # Mathematician - Math parsing library
 
-Simple library for parsing mathematical expression from a string.
+Simple library for parsing mathematical expression from a string. It doesn't require any dependency.
 
 It supports only tokenization of integer values and the plus operator for now.
 
