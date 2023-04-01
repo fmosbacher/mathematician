@@ -2,14 +2,18 @@
 
 Simple library for parsing mathematical expression from a string.
 
-It supports only integers values for now.
+It supports only tokenization of integer values and the plus operator for now.
 
 ## Example
 
 ```rust
-let input = "3 * 3 ^ (2 + 1)";
-let math_expr: MathExpr = input.parse().unwrap();
-assert_eq!(math_expr.eval(), 81);
+let mut lexer = Lexer::default();
+assert_eq!(lexer.tokenize("12 + 3"), Ok(()));
+lexer.tokens().for_each(|token| println!("{:?}", token));
+// Will print:
+// Integer(12)
+// Plus
+// Integer(3)
 ```
 
 ## Running
@@ -17,16 +21,3 @@ assert_eq!(math_expr.eval(), 81);
 ```bash
 cargo run
 ```
-
-## To do
-
-- Add
-- Subtract
-- Parentheses
-- Multiply
-- Divide
-- Decimal numbers
-- Pow
-- Improve error handling types
-- Overflow handling
-- Log
