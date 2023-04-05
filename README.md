@@ -2,7 +2,7 @@
 
 Simple library for parsing mathematical expression from a string. It doesn't require any dependency.
 
-It supports only tokenization of integer values and the plus operator for now.
+It supports only tokenization of integer values and basic operators for now.
 
 ## Example
 
@@ -12,7 +12,7 @@ assert_eq!(lexer.tokenize("12 + 3"), Ok(()));
 lexer.tokens().for_each(|token| println!("{:?}", token));
 // Will print:
 // Integer(12)
-// Plus
+// Operator(Plus)
 // Integer(3)
 ```
 
