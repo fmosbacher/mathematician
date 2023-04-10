@@ -72,6 +72,18 @@ fn map<T, U>(map_fn: impl Fn(T) -> U, parser: impl Parser<T>) -> impl Parser<U> 
     }
 }
 
+fn many<T>(parser: impl Parser<T>) -> impl Parser<Vec<T>> {
+    move |input: &str| {
+        let mut acc = vec![];
+        let mut input = input.to_string();
+        while let Ok((parsed, remaining)) = parser.run(input.as_str()) {
+            acc.push(parsed);
+            input = remaining;
+        }
+        Ok((acc, input))
+    }
+}
+
 fn p_digit(input: &str) -> ParseResult<char> {
     for parser in ('0'..='9').map(p_char) {
         let result = parser.run(input);
@@ -85,7 +97,7 @@ fn p_digit(input: &str) -> ParseResult<char> {
 fn p_positive_integer(input: &str) -> ParseResult<u32> {
     let mut acc = String::new();
     let mut input = input.to_string();
-    while let Ok((parsed, remaining)) = p_digit(input.as_str()) {
+    while let Ok((parsed, remaining)) = p_digit.run(input.as_str()) {
         acc.push(parsed);
         input = remaining;
     }
@@ -96,42 +108,31 @@ fn p_positive_integer(input: &str) -> ParseResult<u32> {
 }
 
 fn p_expr(input: &str) -> ParseResult<i64> {
-    // expr: term | term ("+" | "-") term
+    // expr: term { ("+" | "-") term }*
     map(
-        |result| match result {
-            Either::Left(num) => num,
-            Either::Right(num) => num,
+        |(a, pairs)| {
+            pairs.iter().fold(a, |acc, (op, b)| match op {
+                Either::Left(_add) => acc + b,
+                Either::Right(_sub) => acc - b,
+            })
         },
-        choice(
-            map(
-                |(a, (op, b))| match op {
-                    Either::Left(_add) => a + b,
-                    Either::Right(_sub) => a - b,
-                },
-                seq(p_term, seq(choice(p_char('+'), p_char('-')), p_term)),
-            ),
-            p_term,
-        ),
+        seq(p_term, many(seq(choice(p_char('+'), p_char('-')), p_term))),
     )
     .run(input)
 }
 
 fn p_term(input: &str) -> ParseResult<i64> {
-    // term: factor | factor ("*" | "/") factor
+    // term: factor { ("*" | "/") factor }*
     map(
-        |result| match result {
-            Either::Left(num) => num,
-            Either::Right(num) => num,
+        |(a, pairs)| {
+            pairs.iter().fold(a, |acc, (op, b)| match op {
+                Either::Left(_mul) => acc * b,
+                Either::Right(_div) => acc / b,
+            })
         },
-        choice(
-            map(
-                |(a, (op, b))| match op {
-                    Either::Left(_mul) => a * b,
-                    Either::Right(_div) => a / b,
-                },
-                seq(p_factor, seq(choice(p_char('*'), p_char('/')), p_factor)),
-            ),
+        seq(
             p_factor,
+            many(seq(choice(p_char('*'), p_char('/')), p_factor)),
         ),
     )
     .run(input)

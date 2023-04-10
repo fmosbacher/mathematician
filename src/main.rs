@@ -1,7 +1,7 @@
 use mathematician::MathExpr;
 
 fn main() {
-    let expr = "(1+9)*5".parse::<MathExpr>().unwrap();
-    println!("{:?}", expr.eval());
-    // Should print 50
+    let expr = "(3+5)/4*(27/3/3)".parse::<MathExpr>().unwrap();
+    println!("{}", expr.eval());
+    // Should print 6
 }
