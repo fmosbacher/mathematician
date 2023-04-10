@@ -139,7 +139,19 @@ fn p_term(input: &str) -> ParseResult<i64> {
 }
 
 fn p_factor(input: &str) -> ParseResult<i64> {
-    // factor: INTEGER | "(" expr ")" | "-" factor
+    // factor: power { "^" power }*
+    map(
+        |(a, pairs)| {
+            let partial = pairs.iter().rfold(1, |acc, (_, b)| (*b as u32).pow(acc));
+            a.pow(partial)
+        },
+        seq(p_power, many(seq(p_char('^'), p_power))),
+    )
+    .run(input)
+}
+
+fn p_power(input: &str) -> ParseResult<i64> {
+    // power: INTEGER | "(" expr ")" | "-" factor
     map(
         |result| match result {
             Either::Left(num) => num as i64,

@@ -2,7 +2,7 @@
 
 Simple parser combinator library for parsing mathematical expression from a string. It doesn't require any dependency.
 
-It supports basic operations `(+, -, *, /)` and integer numbers for now.
+It supports basic operations (`+`, `-`, `*`, `/` and `^`) and integer numbers for now.
 
 ## Example
 
@@ -10,9 +10,9 @@ It supports basic operations `(+, -, *, /)` and integer numbers for now.
 use mathematician::MathExpr;
 
 fn main() {
-    let expr = "(3+5)/4*(27/3/3)".parse::<MathExpr>().unwrap();
+    let expr = "2^3^2/512+50*(2-5)".parse::<MathExpr>().unwrap();
     println!("{}", expr.eval());
-    // Should print 6
+    // Should print -149
 }
 ```
 
