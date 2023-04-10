@@ -1,7 +1,7 @@
-use mathematician::lexer::Lexer;
+use mathematician::MathExpr;
 
 fn main() {
-    let mut lexer = Lexer::default();
-    assert_eq!(lexer.tokenize("2+2+-365*/"), Ok(()));
-    lexer.tokens().for_each(|token| println!("{:?}", token));
+    let expr = "(1+9)*5".parse::<MathExpr>().unwrap();
+    println!("{:?}", expr.eval());
+    // Should print 50
 }

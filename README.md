@@ -1,19 +1,20 @@
 # Mathematician - Math parsing library
 
-Simple library for parsing mathematical expression from a string. It doesn't require any dependency.
+Simple parser combinator library for parsing mathematical expression from a string. It doesn't require any dependency.
 
-It supports only tokenization of integer values and basic operators for now.
+It suports basic operations (+, -, \*, /) and integer numbers for now.
 
 ## Example
 
 ```rust
-let mut lexer = Lexer::default();
-assert_eq!(lexer.tokenize("12 + 3"), Ok(()));
-lexer.tokens().for_each(|token| println!("{:?}", token));
-// Will print:
-// Integer(12)
-// Operator(Add)
-// Integer(3)
+use mathematician::MathExpr;
+
+fn main() {
+    let expr = "(1+9)*5".parse::<MathExpr>().unwrap();
+    println!("{:?}", expr.eval());
+    // Should print 50
+}
+
 ```
 
 ## Running
