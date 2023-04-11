@@ -1,6 +1,8 @@
 use std::str::FromStr;
 
-use crate::parsec::{choice, many, map, p_char, p_natural, seq, Either, ParseResult, Parser};
+use crate::parsec::{
+    choice, many, map, p_char, p_natural_number, seq, Either, ParseResult, Parser,
+};
 
 fn p_expr(input: &str) -> ParseResult<i64> {
     // expr: term { ("+" | "-") term }*
@@ -56,7 +58,7 @@ fn p_power(input: &str) -> ParseResult<i64> {
             },
         },
         choice(
-            p_natural,
+            p_natural_number,
             choice(
                 map(
                     |(_, (expr, _))| expr,
