@@ -1,17 +1,22 @@
 use kombi::{character, digit, either, lazy, left, many, many1, right, sequence, Either, Parser};
 
-fn integer() -> Parser<'static, i32> {
-    let string_to_integer =
-        |digits: Vec<char>| digits.iter().collect::<String>().parse::<i32>().unwrap();
-    let negative = right(character('-'), many1(digit())).map(string_to_integer);
-    let positive = many1(digit()).map(string_to_integer);
-    either(negative, positive).map(|integer| match integer {
-        Either::Left(negative) => -negative,
-        Either::Right(positive) => positive,
+fn positive_number() -> Parser<'static, f64> {
+    let to_string = |chars: Vec<char>| chars.iter().collect::<String>();
+    let integer = many1(digit())
+        .map(to_string)
+        .map(|digits| digits.parse::<f64>().unwrap());
+    let float = sequence(
+        many1(digit()).map(to_string),
+        sequence(character('.'), many1(digit()).map(to_string)),
+    )
+    .map(|(left, (dot, right))| format!("{}{}{}", left, dot, right).parse::<f64>().unwrap());
+    either(float, integer).map(|result| match result {
+        Either::Left(float) => float,
+        Either::Right(integer) => integer,
     })
 }
 
-fn expr() -> Parser<'static, i32> {
+fn expr() -> Parser<'static, f64> {
     either(
         sequence(
             term(),
@@ -28,7 +33,7 @@ fn expr() -> Parser<'static, i32> {
     })
 }
 
-fn term() -> Parser<'static, i32> {
+fn term() -> Parser<'static, f64> {
     either(
         sequence(
             factor(),
@@ -45,20 +50,33 @@ fn term() -> Parser<'static, i32> {
     })
 }
 
-fn factor() -> Parser<'static, i32> {
-    lazy(|| {
-        either(
-            integer(),
-            right(character('('), left(expr(), character(')'))),
-        )
-    })
-    .map(|factor| match factor {
-        Either::Left(integer) => integer,
-        Either::Right(expr) => expr,
+fn factor() -> Parser<'static, f64> {
+    either(sequence(exp(), many(right(character('^'), exp()))), exp()).map(|term| match term {
+        Either::Left((head, tail)) => head.powf(tail.iter().rev().fold(1.0, |acc, x| x.powf(acc))),
+        Either::Right(factor) => factor,
     })
 }
 
-pub fn eval(input: &'static str) -> Result<i32, String> {
+fn exp() -> Parser<'static, f64> {
+    lazy(|| {
+        either(
+            either(
+                positive_number(),
+                right(character('('), left(expr(), character(')'))),
+            ),
+            right(character('-'), expr()).map(|expr| -expr),
+        )
+        .map(|exp| match exp {
+            Either::Left(pos_or_parentesis) => match pos_or_parentesis {
+                Either::Left(positive_number) => positive_number,
+                Either::Right(expr) => expr,
+            },
+            Either::Right(negative_expr) => negative_expr,
+        })
+    })
+}
+
+pub fn eval(input: &'static str) -> Result<f64, String> {
     let result = expr().parse(input);
     match result {
         Some((parsed, remaining)) => {
