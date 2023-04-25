@@ -120,6 +120,35 @@ pub fn character(search_char: char) -> Parser<'static, char> {
     })
 }
 
+pub fn lower() -> Parser<'static, char> {
+    satisfies(any_character(), move |first_char| {
+        ('a'..='z').contains(first_char)
+    })
+}
+
+pub fn upper() -> Parser<'static, char> {
+    satisfies(any_character(), move |first_char| {
+        ('A'..='Z').contains(first_char)
+    })
+}
+
+pub fn letter() -> Parser<'static, char> {
+    either(lower(), upper()).map(|letter| match letter {
+        Either::Left(lower) => lower,
+        Either::Right(upper) => upper,
+    })
+}
+
+pub fn literal<'a>(search_literal: &'a str) -> Parser<'a, String> {
+    Parser::new(Box::new(move |input| {
+        if input.starts_with(search_literal) {
+            Some((search_literal.into(), &input[search_literal.len()..]))
+        } else {
+            None
+        }
+    }))
+}
+
 pub fn digit() -> Parser<'static, char> {
     satisfies(any_character(), move |first_char| {
         ('0'..='9').contains(first_char)
