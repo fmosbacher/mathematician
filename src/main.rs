@@ -1,7 +1,8 @@
-use mathematician::math::Expr;
+use mathematician::eval;
 
 fn main() {
-    let expr = "2^3^2/512+50*(2-5)".parse::<Expr>().unwrap();
-    println!("{}", expr.eval());
+    let input = "2^3^2/512+50*(2-5)";
+    let result = eval(input).unwrap();
+    println!("{}", result);
     // Should print -149
 }
